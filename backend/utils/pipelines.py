@@ -128,6 +128,20 @@ def add_features(full_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.
     # Add churn ratio feature
     customer_df["churn_ratio"] = customer_df["recency"] / customer_df["median_purchase_days"]
     
+    # Add churn label based on churn_ratio
+    def assign_churn_label(ratio):
+        """Assign churn risk label based on churn ratio."""
+        if pd.isna(ratio) or not np.isfinite(ratio):
+            return None
+        if ratio <= 1:
+            return "Low Risk"
+        elif ratio < 2:
+            return "Medium Risk"
+        else:  # ratio >= 2
+            return "High Risk"
+    
+    customer_df["churn_label"] = customer_df["churn_ratio"].apply(assign_churn_label)
+    
     # Add customer segmentation using KMeans clustering
     customer_df = _add_segmentation(customer_df)
     
