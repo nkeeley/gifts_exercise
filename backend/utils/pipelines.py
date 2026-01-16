@@ -330,6 +330,8 @@ def _calculate_segment_statistics(customer_df: pd.DataFrame) -> List[SegmentStat
     
     return stats_list
 
+
+
 if __name__ == "__main__":
     # Example usage
     data_path = "../data/raw/online_retail.parquet"
