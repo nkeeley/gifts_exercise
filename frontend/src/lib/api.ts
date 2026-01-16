@@ -5,8 +5,8 @@ import { ProcessDataResponse, CustomerRecommendationResponse } from "@/types/api
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// TEMP: log API base URL to confirm Vercel env variable
-console.log("API_BASE_URL:", API_BASE_URL);
+// TEMP: log to confirm
+console.log("Uploading to API_BASE_URL:", API_BASE_URL);
 
 export async function processData(file: File): Promise<ProcessDataResponse> {
   const formData = new FormData();
