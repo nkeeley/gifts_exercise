@@ -1,0 +1,195 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 215 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    --primary: 185 70% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 15% 93%;
+    --secondary-foreground: 215 25% 25%;
+
+    --muted: 210 15% 95%;
+    --muted-foreground: 215 15% 45%;
+
+    --accent: 185 60% 92%;
+    --accent-foreground: 185 70% 25%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 25 95% 55%;
+    --warning-foreground: 0 0% 100%;
+
+    --success: 160 65% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 185 70% 35%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Custom tokens for dashboard */
+    --stat-card-gradient: linear-gradient(135deg, hsl(185 70% 35% / 0.08) 0%, hsl(185 60% 92% / 0.4) 100%);
+    --upload-zone-gradient: linear-gradient(180deg, hsl(210 20% 98%) 0%, hsl(185 60% 92% / 0.3) 100%);
+    --upload-zone-border: hsl(185 70% 35% / 0.3);
+    --upload-zone-hover: hsl(185 70% 35% / 0.1);
+    --at-risk-bg: hsl(25 95% 55% / 0.1);
+    --at-risk-text: hsl(25 95% 40%);
+    --table-header-bg: hsl(210 15% 95%);
+    --table-row-hover: hsl(185 60% 92% / 0.3);
+    --shadow-subtle: 0 1px 3px hsl(215 25% 15% / 0.06), 0 1px 2px hsl(215 25% 15% / 0.04);
+    --shadow-card: 0 4px 12px hsl(215 25% 15% / 0.08), 0 2px 4px hsl(215 25% 15% / 0.04);
+    --shadow-elevated: 0 12px 40px hsl(215 25% 15% / 0.12), 0 4px 12px hsl(215 25% 15% / 0.06);
+  }
+
+  .dark {
+    --background: 215 25% 10%;
+    --foreground: 210 20% 95%;
+
+    --card: 215 25% 13%;
+    --card-foreground: 210 20% 95%;
+
+    --popover: 215 25% 13%;
+    --popover-foreground: 210 20% 95%;
+
+    --primary: 185 65% 50%;
+    --primary-foreground: 215 25% 10%;
+
+    --secondary: 215 20% 20%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 215 20% 18%;
+    --muted-foreground: 210 15% 55%;
+
+    --accent: 185 50% 20%;
+    --accent-foreground: 185 65% 70%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 25 85% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --success: 160 55% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 215 20% 22%;
+    --input: 215 20% 22%;
+    --ring: 185 65% 50%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+}
+
+@layer components {
+  .stat-card {
+    @apply relative overflow-hidden rounded-xl border border-border bg-card p-6;
+    background: var(--stat-card-gradient);
+    box-shadow: var(--shadow-card);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(185 65% 50%) 100%);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .upload-zone {
+    @apply relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 transition-all duration-300;
+    border-color: var(--upload-zone-border);
+    background: var(--upload-zone-gradient);
+  }
+
+  .upload-zone:hover {
+    @apply border-primary;
+    background: var(--upload-zone-hover);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .upload-zone.dragging {
+    @apply border-primary scale-[1.02];
+    background: hsl(var(--primary) / 0.08);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .data-table {
+    @apply w-full overflow-hidden rounded-xl border border-border bg-card;
+    box-shadow: var(--shadow-card);
+  }
+
+  .data-table-header {
+    background: var(--table-header-bg);
+  }
+
+  .data-table-row:hover {
+    background: var(--table-row-hover);
+  }
+
+  .at-risk-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+    background: var(--at-risk-bg);
+    color: var(--at-risk-text);
+  }
+
+  .segment-filter-chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all duration-200 cursor-pointer;
+  }
+
+  .segment-filter-chip.active {
+    @apply border-primary bg-primary text-primary-foreground;
+  }
+
+  .segment-filter-chip:not(.active) {
+    @apply border-border bg-card text-muted-foreground hover:border-primary hover:text-foreground;
+  }
+}
+
+@layer utilities {
+  .loading-spinner {
+    @apply animate-spin rounded-full border-4 border-muted border-t-primary;
+  }
+}
