@@ -19,6 +19,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
+## Add middleware
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://8e8de890-1c62-477a-a396-5771e7bd4b0b.lovableproject.com", "*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.post("/api/process-data", response_model=ProcessDataResponse)
 async def process_data(file: UploadFile = File(...)):
