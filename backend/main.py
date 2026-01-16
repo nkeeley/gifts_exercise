@@ -1,11 +1,15 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from schemas import ProcessDataResponse, CustomerRecord, SegmentStatistics
+from schemas import ProcessDataResponse, CustomerRecord, SegmentStatistics, CustomerRecommendationResponse
 from utils.pipelines import ingest_data, transform_data, add_features, _calculate_segment_statistics
-from typing import List
+from typing import List, Dict, Optional
 import tempfile
 import os
 import pandas as pd
 import math
+
+# In-memory storage for processed customer data
+# Key: customer_id (float), Value: CustomerRecord dict
+_customer_cache: Dict[float, dict] = {}
 
 # Create FastAPI app instance
 app = FastAPI(
@@ -96,6 +100,10 @@ async def process_data(file: UploadFile = File(...)):
                 elif isinstance(value, float) and (math.isinf(value) or math.isnan(value)):
                     record[key] = None
         
+        # Store customer data in cache for later retrieval by recommendation endpoint
+        for record in customer_records:
+            _customer_cache[record['customer_id']] = record
+        
         # Convert to Pydantic models for validation
         customer_data = [CustomerRecord(**record) for record in customer_records]
         
@@ -120,6 +128,82 @@ async def process_data(file: UploadFile = File(...)):
         # Clean up temporary file
         if temp_file and os.path.exists(temp_file):
             os.unlink(temp_file)
+
+
+@app.get("/api/customer/{customer_id}/recommendation", response_model=CustomerRecommendationResponse)
+async def get_customer_recommendation(customer_id: float):
+    """
+    Get individual customer data and recommendation.
+    
+    Retrieves a single customer's data and generates a text recommendation
+    based on their segment and churn risk.
+    
+    Args:
+        customer_id: The customer ID to retrieve
+    
+    Returns:
+        CustomerRecommendationResponse containing customer data and recommendation
+    """
+    # Check if customer exists in cache
+    if customer_id not in _customer_cache:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Customer {customer_id} not found. Please process data first using /api/process-data endpoint."
+        )
+    
+    # Get customer record from cache
+    customer_record_dict = _customer_cache[customer_id]
+    customer_record = CustomerRecord(**customer_record_dict)
+    
+    # Generate recommendation based on segment and churn risk
+    recommendation = _generate_recommendation(customer_record)
+    
+    return CustomerRecommendationResponse(
+        customer=customer_record,
+        recommendation=recommendation
+    )
+
+
+def _generate_recommendation(customer: CustomerRecord) -> str:
+    """
+    Generate recommendation text based on customer segment and churn risk.
+    
+    Args:
+        customer: CustomerRecord with all customer data
+    
+    Returns:
+        Text recommendation string
+    """
+    segment = customer.segment
+    churn_label = customer.churn_label
+    
+    # TODO: Implement your recommendation logic here
+    # This is a placeholder structure - replace with your actual conditions and outputs
+    
+    if segment == "Monthly, High-Value Buyers":
+        if churn_label == "High Risk":
+            return "Your recommendation text for High Risk Monthly, High-Value Buyers"
+        elif churn_label == "Medium Risk":
+            return "Your recommendation text for Medium Risk Monthly, High-Value Buyers"
+        else:  # Low Risk
+            return "Your recommendation text for Low Risk Monthly, High-Value Buyers"
+    
+    elif segment == "Seasonal Buyers":
+        if churn_label == "High Risk":
+            return "Your recommendation text for High Risk Seasonal Buyers"
+        elif churn_label == "Medium Risk":
+            return "Your recommendation text for Medium Risk Seasonal Buyers"
+        else:  # Low Risk
+            return "Your recommendation text for Low Risk Seasonal Buyers"
+    
+    else:  # Experimental / Hesitant, Lower-Value Buyers
+        if churn_label == "High Risk":
+            return "Your recommendation text for High Risk Experimental/Hesitant Buyers"
+        elif churn_label == "Medium Risk":
+            return "Your recommendation text for Medium Risk Experimental/Hesitant Buyers"
+        else:  # Low Risk
+            return "Your recommendation text for Low Risk Experimental/Hesitant Buyers"
+
 
 if __name__ == "__main__":
     import uvicorn

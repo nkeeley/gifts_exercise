@@ -71,3 +71,28 @@ class ProcessDataResponse(BaseModel):
                 "segment_statistics": []
             }
         }
+
+
+class CustomerRecommendationResponse(BaseModel):
+    """Response schema for individual customer recommendation endpoint."""
+    customer: CustomerRecord  # All customer data
+    recommendation: str  # Text recommendation based on segment
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "customer": {
+                    "customer_id": 12345.0,
+                    "recency": 30,
+                    "frequency": 5,
+                    "monetary": 1250.50,
+                    "median_purchase_days": 15.0,
+                    "churn_ratio": 2.0,
+                    "churn_label": "High Risk",
+                    "monetary_log": 7.13,
+                    "cluster_assignment": 1,
+                    "segment": "Monthly, High-Value Buyers"
+                },
+                "recommendation": "Based on your segment and churn risk, we recommend..."
+            }
+        }
