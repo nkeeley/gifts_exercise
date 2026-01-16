@@ -150,7 +150,149 @@ gifts_exercise/
 - **`frontend/src/components/`**: React components for the dashboard UI
 - **`frontend/src/lib/api.ts`**: API client handling communication with the FastAPI backend
 
-## 4. Approach / Methodology
+## 4. Production Deployment
+
+This application can be deployed to production using a split deployment strategy: frontend on Vercel and backend on Railway or Render.
+
+### Prerequisites
+
+- GitHub account (for connecting repositories)
+- Vercel account (free tier available)
+- Railway account (free tier available) OR Render account (free tier available)
+
+### Backend Deployment (Railway or Render)
+
+#### Option A: Railway (Recommended)
+
+1. **Sign up for Railway:**
+   - Go to [railway.app](https://railway.app) and sign up with GitHub
+
+2. **Create a new project:**
+   - Click "New Project"
+   - Select "Deploy from GitHub repo"
+   - Choose your `gifts_exercise` repository
+
+3. **Configure the service:**
+   - Railway will auto-detect the `backend/` directory
+   - Set the root directory to `backend` in project settings
+   - Railway will automatically use the `Procfile` or `railway.json` configuration
+
+4. **Set environment variables:**
+   - Go to the Variables tab in your Railway project
+   - Add `CORS_ORIGINS` (leave empty for now, we'll update after frontend deployment)
+   - Railway will automatically set `PORT` variable
+
+5. **Deploy:**
+   - Railway will automatically deploy on push to your main branch
+   - Note your deployment URL (e.g., `https://your-app.railway.app`)
+
+6. **Test the backend:**
+   - Visit `https://your-app.railway.app/docs` to see the FastAPI docs
+   - Test the `/api/process-data` endpoint
+
+#### Option B: Render
+
+1. **Sign up for Render:**
+   - Go to [render.com](https://render.com) and sign up with GitHub
+
+2. **Create a new Web Service:**
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Select the `gifts_exercise` repository
+
+3. **Configure the service:**
+   - **Name**: `gifts-exercise-backend` (or your preferred name)
+   - **Environment**: Python 3
+   - **Build Command**: `cd backend && pip install -r requirements.txt`
+   - **Start Command**: `cd backend && python3 -m uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - **Root Directory**: `backend`
+
+4. **Set environment variables:**
+   - Go to the Environment tab
+   - Add `CORS_ORIGINS` (leave empty for now)
+   - Render will automatically set `PORT` variable
+
+5. **Deploy:**
+   - Click "Create Web Service"
+   - Render will build and deploy your application
+   - Note your deployment URL (e.g., `https://your-app.onrender.com`)
+
+6. **Test the backend:**
+   - Visit `https://your-app.onrender.com/docs` to see the FastAPI docs
+   - Test the `/api/process-data` endpoint
+
+### Frontend Deployment (Vercel)
+
+1. **Sign up for Vercel:**
+   - Go to [vercel.com](https://vercel.com) and sign up with GitHub
+
+2. **Import your repository:**
+   - Click "Add New..." → "Project"
+   - Import your `gifts_exercise` repository
+
+3. **Configure the project:**
+   - **Framework Preset**: Vite
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm run build` (auto-detected)
+   - **Output Directory**: `dist` (auto-detected)
+   - **Install Command**: `npm install` (auto-detected)
+
+4. **Set environment variables:**
+   - Go to Settings → Environment Variables
+   - Add `VITE_API_BASE_URL` with your backend URL:
+     - Railway: `https://your-app.railway.app`
+     - Render: `https://your-app.onrender.com`
+   - Make sure to set it for Production, Preview, and Development environments
+
+5. **Deploy:**
+   - Click "Deploy"
+   - Vercel will build and deploy your frontend
+   - Note your deployment URL (e.g., `https://your-app.vercel.app`)
+
+6. **Update backend CORS:**
+   - Go back to Railway/Render
+   - Update the `CORS_ORIGINS` environment variable with your Vercel URL:
+     - Example: `https://your-app.vercel.app`
+     - For multiple environments: `https://your-app.vercel.app,https://your-app-git-main.vercel.app`
+   - Redeploy the backend (Railway auto-redeploys, Render may need manual trigger)
+
+### Verification
+
+1. **Test the full flow:**
+   - Visit your Vercel frontend URL
+   - Upload a parquet file
+   - Verify data processing works
+   - Check that recommendations load correctly
+
+2. **Monitor logs:**
+   - Railway: View logs in the Deployments tab
+   - Render: View logs in the Logs tab
+   - Vercel: View logs in the Deployments tab
+
+### Environment Variables Summary
+
+**Backend (Railway/Render):**
+- `CORS_ORIGINS`: Comma-separated list of allowed frontend URLs (e.g., `https://your-app.vercel.app`)
+- `PORT`: Automatically set by the platform
+
+**Frontend (Vercel):**
+- `VITE_API_BASE_URL`: Backend API URL (e.g., `https://your-app.railway.app`)
+
+### Troubleshooting
+
+- **CORS errors**: Ensure `CORS_ORIGINS` includes your exact Vercel URL (with `https://`)
+- **API connection errors**: Verify `VITE_API_BASE_URL` is set correctly in Vercel
+- **Build failures**: Check that all dependencies are in `requirements.txt` and `package.json`
+- **Port errors**: Ensure backend uses `$PORT` environment variable (already configured)
+
+### Continuous Deployment
+
+Both Railway and Vercel support automatic deployments:
+- **Railway**: Automatically deploys on push to your main branch
+- **Render**: Can be configured to auto-deploy on push
+- **Vercel**: Automatically deploys on push to your main branch
+
+## 5. Approach / Methodology
 
 ### Business logic
 - Originally I wanted to work on upsell conversions from lower to higher value customer segments (experience with this in real consulting world), but your prompt specified this is a B2B relationship between an e-commerce provider selling to wholesale customers. Wholesale customers are behaviorally different than retail or consumer-level customers (eg more sensitive to price, not necessarily as basket sensitive as retailers due to long term quotas/contracts with retailers). Ultimately, I ended up choosing to identify churn likelihood instead, and generate recommendations based on wholesale customer segmentation (using RFM KMeans clustering).
@@ -165,7 +307,7 @@ gifts_exercise/
 - For KMeans, I ended up taking logarithm of monetary to account for skew, to help normalize the clustering process.
 - Segmentation yielded three broad archetypes of customer behavior (along the RFM feature dimensions): Seasonal Buyers, Experimental / Hesitant Lower-Value Buyers, and Monthly High-Value Buyers. 
 
-## 5. Next Steps (With More Time)
+## 6. Next Steps (With More Time)
 
 - In a real-world scenario, we would ask for more historical data and label true churn based on the business' definition. We would redo the analysis and have more robust features/action items.
 - For the sake of time, I created static/deterministic recommendations for marketers to take for individual high-risk churn candidates, based on their segment labels (incorporating several key metrics for the customer). With more time, I would have either created personalized statistics (e.g. monthly basket size, purchase plotting by month), or run individual customer data through an LLM endpoint (didn't want to pay for LLM provider tokens and didn't have time to build this out) to provide highly personalized recommendations. If we had customer contact data, we could also generate outreach tailored to the customer.
