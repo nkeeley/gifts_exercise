@@ -1,0 +1,21 @@
+# Minimal production requirements for FastAPI backend
+# This file contains only the packages needed for the API to run in production.
+# For local development with Jupyter notebooks, use requirements.txt instead.
+
+# Web framework and server
+fastapi==0.128.0
+uvicorn[standard]==0.40.0
+python-multipart==0.0.20
+
+# Data processing
+pandas==1.5.3
+numpy==1.26.4
+fastparquet==2025.12.0
+
+# Machine learning (for KMeans clustering)
+scikit-learn==1.6.1
+
+# Data validation
+pydantic==2.10.5
+pydantic-settings==2.7.1
+pydantic_core==2.27.2

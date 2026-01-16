@@ -44,6 +44,8 @@ The system uses KMeans clustering to segment customers into three groups: Monthl
    ```bash
    pip install -r requirements.txt
    ```
+   
+   **Note:** `requirements.txt` includes all dependencies for local development including Jupyter notebooks. For production deployment, Railway uses `requirements-prod.txt` which contains only the minimal packages needed for the API (FastAPI, pandas, scikit-learn, etc.), resulting in much faster builds.
 
 5. **Verify the installation:**
    ```bash
@@ -113,7 +115,12 @@ gifts_exercise/
 │   │   └── recommendations.py  # Customer recommendation generation
 │   ├── main.py                 # FastAPI application entry point
 │   ├── schemas.py              # Pydantic models for API validation
-│   ├── requirements.txt         # Python dependencies
+│   ├── requirements.txt         # Full Python dependencies (for local dev with Jupyter)
+│   ├── requirements-prod.txt    # Minimal production dependencies (for Railway deployment)
+│   ├── Dockerfile               # Docker configuration for optimized production builds
+│   ├── Procfile                 # Process definition for Railway/Render
+│   ├── railway.json             # Railway deployment configuration
+│   ├── render.yaml              # Render deployment configuration
 │   └── pytest.ini              # Pytest configuration
 │
 ├── frontend/                   # React + TypeScript frontend application
@@ -175,7 +182,8 @@ This application can be deployed to production using a split deployment strategy
 3. **Configure the service:**
    - Railway will auto-detect the `backend/` directory
    - Set the root directory to `backend` in project settings
-   - Railway will automatically use the `Procfile` or `railway.json` configuration
+   - Railway will automatically detect and use the `Dockerfile` for building
+   - The Dockerfile uses `requirements-prod.txt` (minimal production dependencies) for faster builds
 
 4. **Set environment variables:**
    - Go to the Variables tab in your Railway project
@@ -282,8 +290,12 @@ This application can be deployed to production using a split deployment strategy
 
 - **CORS errors**: Ensure `CORS_ORIGINS` includes your exact Vercel URL (with `https://`)
 - **API connection errors**: Verify `VITE_API_BASE_URL` is set correctly in Vercel
-- **Build failures**: Check that all dependencies are in `requirements.txt` and `package.json`
-- **Port errors**: Ensure backend uses `$PORT` environment variable (already configured)
+- **Build failures**: 
+  - Railway uses `Dockerfile` with `requirements-prod.txt` (minimal production dependencies) for faster builds
+  - For local development, use `requirements.txt` which includes Jupyter and other dev tools
+  - Check that all dependencies are in the appropriate requirements file
+- **Build timeouts on Railway**: The Dockerfile approach with `requirements-prod.txt` significantly reduces build time (only ~12 packages vs 264)
+- **Port errors**: Ensure backend uses `$PORT` environment variable (already configured in Dockerfile)
 
 ### Continuous Deployment
 
