@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-This is a dashboard application for a prospective e-commerce retailer to view wholesale customers that are at risk of churning (relative to customer historical behavior), and provides recommendations on outreach based on RFM clustering.
+This is a dashboard application for a prospective e-commerce provider to view wholesale customers that are at risk of churning (relative to customer historical behavior), and provides recommendations on outreach based on RFM clustering.
 
 The application enables retailers to:
 - Upload transaction data in parquet format
