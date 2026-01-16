@@ -105,16 +105,23 @@ gifts_exercise/
 ├── backend/                    # FastAPI backend application
 │   ├── data/                   # Data storage
 │   │   ├── raw/                # Raw input data (parquet files)
+│   │   │   └── online_retail.parquet
 │   │   └── processed/          # Processed output data (CSV files)
+│   │       ├── customer_df.csv
+│   │       ├── invoice_df.csv
+│   │       └── full_df.csv
 │   ├── notebooks/              # Jupyter notebooks for data exploration
 │   │   └── data_exploration.ipynb
 │   ├── tests/                  # Comprehensive pytest test suite
+│   │   ├── __init__.py
 │   │   ├── conftest.py         # Shared test fixtures
 │   │   ├── test_endpoints.py   # API endpoint tests
 │   │   ├── test_pipelines.py   # Data pipeline function tests
 │   │   ├── test_recommendations.py  # Recommendation logic tests
-│   │   └── test_schemas.py     # Pydantic schema validation tests
+│   │   ├── test_schemas.py     # Pydantic schema validation tests
+│   │   └── README.md           # Test suite documentation
 │   ├── utils/                  # Utility modules
+│   │   ├── __init__.py
 │   │   ├── pipelines.py        # Data processing pipeline functions
 │   │   └── recommendations.py  # Customer recommendation generation
 │   ├── main.py                 # FastAPI application entry point
@@ -135,6 +142,9 @@ gifts_exercise/
 │   │   │   ├── ChurnScatterPlot.tsx  # Churn visualization
 │   │   │   ├── FileUploadZone.tsx    # File upload component
 │   │   │   ├── RecommendationDrawer.tsx  # Customer recommendations
+│   │   │   ├── SegmentFilter.tsx    # Segment filtering component
+│   │   │   ├── StatCard.tsx    # Statistics display card
+│   │   │   ├── NavLink.tsx     # Navigation link component
 │   │   │   └── ui/             # shadcn/ui component library
 │   │   ├── lib/
 │   │   │   ├── api.ts          # API client for backend communication
@@ -142,10 +152,28 @@ gifts_exercise/
 │   │   ├── types/
 │   │   │   └── api.ts          # TypeScript type definitions
 │   │   ├── pages/              # Page components
-│   │   └── hooks/              # Custom React hooks
+│   │   │   ├── Index.tsx       # Main page
+│   │   │   └── NotFound.tsx   # 404 page
+│   │   ├── hooks/              # Custom React hooks
+│   │   │   ├── use-mobile.tsx
+│   │   │   └── use-toast.ts
+│   │   ├── test/               # Test files
+│   │   ├── App.tsx             # Root App component
+│   │   ├── App.css             # App styles
+│   │   ├── main.tsx             # Application entry point
+│   │   └── index.css           # Global styles
 │   ├── public/                 # Static assets
+│   │   ├── favicon.ico
+│   │   ├── placeholder.svg
+│   │   └── robots.txt
 │   ├── package.json            # Node.js dependencies and scripts
-│   └── vite.config.ts          # Vite build configuration
+│   ├── vite.config.ts          # Vite build configuration
+│   ├── vercel.json             # Vercel deployment configuration
+│   ├── vitest.config.ts        # Vitest test configuration
+│   ├── tailwind.config.ts      # Tailwind CSS configuration
+│   ├── tsconfig.json           # TypeScript configuration
+│   ├── components.json         # shadcn/ui components configuration
+│   └── postcss.config.js       # PostCSS configuration
 │
 └── README.md                   # This file
 ```
