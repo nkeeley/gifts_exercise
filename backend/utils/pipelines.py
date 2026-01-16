@@ -10,6 +10,8 @@ import numpy as np
 from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
+from schemas import SegmentStatistics
+from typing import List
 
 
 def ingest_data(data_path: str) -> pd.DataFrame:
@@ -265,6 +267,68 @@ def run_full_pipeline(
     
     return full_df, invoice_df, customer_df
 
+def _calculate_segment_statistics(customer_df: pd.DataFrame) -> List[SegmentStatistics]:
+    """
+    Calculate aggregate churn risk statistics by segment.
+    
+    Args:
+        customer_df: DataFrame with customer data including segment and churn_label
+    
+    Returns:
+        List of SegmentStatistics objects, one per segment plus a "Total" row
+    """
+    stats_list = []
+    
+    # Get unique segments
+    segments = customer_df['segment'].unique().tolist()
+    
+    # Calculate statistics for each segment
+    for segment in segments:
+        segment_df = customer_df[customer_df['segment'] == segment]
+        total_customers = len(segment_df)
+        
+        # Count high and medium risk customers
+        high_risk_count = len(segment_df[segment_df['churn_label'] == 'High Risk'])
+        medium_risk_count = len(segment_df[segment_df['churn_label'] == 'Medium Risk'])
+        
+        # Calculate ratio of Med/High to total
+        med_high_count = high_risk_count + medium_risk_count
+        med_high_ratio = med_high_count / total_customers if total_customers > 0 else 0.0
+        
+        # Calculate total monetary sum of Med/High risk customers
+        med_high_customers = segment_df[
+            segment_df['churn_label'].isin(['Medium Risk', 'High Risk'])
+        ]
+        med_high_monetary_sum = med_high_customers['monetary'].sum() if len(med_high_customers) > 0 else 0.0
+        
+        stats_list.append(SegmentStatistics(
+            segment=segment,
+            high_risk_count=int(high_risk_count),
+            medium_risk_count=int(medium_risk_count),
+            med_high_ratio=float(med_high_ratio),
+            med_high_monetary_sum=float(med_high_monetary_sum)
+        ))
+    
+    # Calculate total row
+    total_customers = len(customer_df)
+    total_high_risk = len(customer_df[customer_df['churn_label'] == 'High Risk'])
+    total_medium_risk = len(customer_df[customer_df['churn_label'] == 'Medium Risk'])
+    total_med_high_ratio = (total_high_risk + total_medium_risk) / total_customers if total_customers > 0 else 0.0
+    
+    total_med_high_customers = customer_df[
+        customer_df['churn_label'].isin(['Medium Risk', 'High Risk'])
+    ]
+    total_med_high_monetary = total_med_high_customers['monetary'].sum() if len(total_med_high_customers) > 0 else 0.0
+    
+    stats_list.append(SegmentStatistics(
+        segment="Total",
+        high_risk_count=int(total_high_risk),
+        medium_risk_count=int(total_medium_risk),
+        med_high_ratio=float(total_med_high_ratio),
+        med_high_monetary_sum=float(total_med_high_monetary)
+    ))
+    
+    return stats_list
 
 if __name__ == "__main__":
     # Example usage

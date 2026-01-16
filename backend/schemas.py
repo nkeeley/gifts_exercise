@@ -33,12 +33,33 @@ class CustomerRecord(BaseModel):
         }
 
 
+class SegmentStatistics(BaseModel):
+    """Schema for segment-level churn risk statistics."""
+    segment: str
+    high_risk_count: int
+    medium_risk_count: int
+    med_high_ratio: float  # Ratio of (Medium + High Risk) to total customers
+    med_high_monetary_sum: float  # Total monetary value of Medium + High Risk customers
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "segment": "Monthly, High-Value Buyers",
+                "high_risk_count": 150,
+                "medium_risk_count": 200,
+                "med_high_ratio": 0.35,
+                "med_high_monetary_sum": 125000.50
+            }
+        }
+
+
 class ProcessDataResponse(BaseModel):
     """Response schema for data processing endpoint."""
     status: str
     message: str
     data: List[CustomerRecord]
     total_customers: int
+    segment_statistics: List[SegmentStatistics]  # Aggregate statistics by segment
 
     class Config:
         json_schema_extra = {
@@ -46,6 +67,7 @@ class ProcessDataResponse(BaseModel):
                 "status": "success",
                 "message": "Data processed successfully",
                 "total_customers": 4316,
-                "data": []
+                "data": [],
+                "segment_statistics": []
             }
         }

@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from schemas import ProcessDataResponse, CustomerRecord
-from utils.pipelines import ingest_data, transform_data, add_features
+from schemas import ProcessDataResponse, CustomerRecord, SegmentStatistics
+from utils.pipelines import ingest_data, transform_data, add_features, _calculate_segment_statistics
+from typing import List
 import tempfile
 import os
 import pandas as pd
@@ -74,6 +75,13 @@ async def process_data(file: UploadFile = File(...)):
             'segment'
         ]
         customer_df = customer_df[columns_to_return]
+
+        # Sort by churn_ratio (highest to lowest), then by monetary (highest to lowest)
+        customer_df = customer_df.sort_values(
+            by=['churn_ratio', 'monetary'],
+            ascending=[False, False],
+            na_position='last'  # Put NaN values at the end
+        )
         
         # Convert to records format (list of dicts) - easy for React to work with
         customer_records = customer_df.to_dict(orient='records')
@@ -91,11 +99,15 @@ async def process_data(file: UploadFile = File(...)):
         # Convert to Pydantic models for validation
         customer_data = [CustomerRecord(**record) for record in customer_records]
         
+        # Calculate aggregate statistics by segment
+        segment_stats = _calculate_segment_statistics(customer_df)
+        
         return ProcessDataResponse(
             status="success",
             message="Data processed successfully",
             data=customer_data,
-            total_customers=len(customer_data)
+            total_customers=len(customer_data),
+            segment_statistics=segment_stats
         )
     
     except Exception as e:
@@ -108,7 +120,6 @@ async def process_data(file: UploadFile = File(...)):
         # Clean up temporary file
         if temp_file and os.path.exists(temp_file):
             os.unlink(temp_file)
-
 
 if __name__ == "__main__":
     import uvicorn
