@@ -4,6 +4,8 @@
 
 This is a dashboard application for a prospective e-commerce provider to view wholesale customers that are at risk of churning (relative to customer historical behavior), and provides recommendations on outreach based on RFM clustering.
 
+To view hosted URL, see: https://gifts-exercise.vercel.app/. Upload any parquet file -- for the one associated with this exercise, navigate to the `backend/data/raw folder` and download the `online_retail.parquet` file located there.
+
 The application enables retailers to:
 - Upload transaction data in parquet format
 - Visualize customer segments and churn risk through interactive charts and tables
